@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Vim swap files
+*.swp
+*.swo
+*~
+
+# Neovim
+nvim/plugin/
+nvim/.netrwhist
+
+# Temporary files
+*.log
+*.tmp
+
+# Plugin managers
+nvim/lazy-lock.json
+nvim/plugin/packer_compiled.lua
+
+# Local configuration (not to be shared)
+**/local.lua
+**/local/

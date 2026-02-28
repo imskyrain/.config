@@ -1,0 +1,249 @@
+# Alacritty 配置 - 对齐 iTerm2 风格
+# 颜色方案基于 iTerm2 的 Everforest soft dark
+# 字体使用 Meslo LG S Nerd Font（与 iTerm2 一致，支持 Nerd Font 图标）
+
+[general]
+live_config_reload = true
+
+# ─── Shell ───────────────────────────────────────────────────────────────────
+[terminal.shell]
+program = "/usr/local/bin/tmux"
+args = ["new-session", "-A", "-s", "main"]
+
+# ─── 字体 ────────────────────────────────────────────────────────────────────
+# iTerm2 中使用 MesloLGLDZNF，对应系统实装字体名 "MesloLGLDZ Nerd Font"
+[font]
+size = 12.0
+
+[font.normal]
+family = "MesloLGLDZ Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "MesloLGLDZ Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "MesloLGLDZ Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "MesloLGLDZ Nerd Font"
+style = "Bold Italic"
+
+[font.offset]
+x = 0
+y = -2
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+# ─── 窗口 ────────────────────────────────────────────────────────────────────
+# iTerm2 Default profile: 不透明，对齐 iTerm2 实际使用效果
+[window]
+decorations = "transparent"
+opacity = 1.0
+
+[window.dimensions]
+columns = 120
+lines = 40
+
+[window.padding]
+x = 20
+y = 22
+
+
+# ─── 颜色方案 (Cobalt2) ───────────────────────────────────────────────────────
+[colors]
+draw_bold_text_with_bright_colors = false
+
+[colors.primary]
+foreground = "#ffffff"
+background = "#122738"
+
+[colors.cursor]
+text = "#122738"
+cursor = "#ffffff"
+
+[colors.selection]
+text = "#ffffff"
+background = "#0050a4"
+
+[colors.normal]
+black = "#000000"
+red = "#ff628c"
+green = "#3ad900"
+yellow = "#ffc600"
+blue = "#0088ff"
+magenta = "#fb94ff"
+cyan = "#80fcff"
+white = "#ffffff"
+
+[colors.bright]
+black = "#0050a4"
+red = "#ff628c"
+green = "#3ad900"
+yellow = "#ffc600"
+blue = "#0088ff"
+magenta = "#fb94ff"
+cyan = "#80fcff"
+white = "#ffffff"
+
+[colors.search.matches]
+background = "#0088ff"
+foreground = "#122738"
+
+[colors.search.focused_match]
+background = "#ffc600"
+foreground = "#122738"
+
+# ─── 光标 ────────────────────────────────────────────────────────────────────
+[cursor]
+style = "Beam"
+
+# ─── 滚动 ────────────────────────────────────────────────────────────────────
+[scrolling]
+history = 100000
+multiplier = 4
+
+# ─── 选中文本 ─────────────────────────────────────────────────────────────────
+[selection]
+save_to_clipboard = true
+semantic_escape_chars = ''',│`|:"' ()[]{}<>'''
+
+# ─── 键绑定 ──────────────────────────────────────────────────────────────────
+# 对齐 iTerm2 常用快捷键习惯
+[keyboard]
+
+# 刷新 tmux
+[[keyboard.bindings]]
+chars = "\f"
+key = "R"
+mode = "~Vi|~Search"
+mods = "Command"
+
+[[keyboard.bindings]]
+action = "ClearHistory"
+key = "R"
+mode = "~Vi|~Search"
+mods = "Command"
+
+# 窗口管理 - 对齐 iTerm2
+[[keyboard.bindings]]
+action = "Hide"
+key = "W"
+mods = "Command"
+
+[[keyboard.bindings]]
+action = "Quit"
+key = "W"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+action = "SpawnNewInstance"
+key = "N"
+mods = "Command"
+
+# 单词/行跳转 - 对齐 iTerm2
+[[keyboard.bindings]]
+chars = "\u001Bb"
+key = "Left"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u001Bf"
+key = "Right"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u0001"
+key = "Left"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0005"
+key = "Right"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0015"
+key = "Back"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001B\u007F"
+key = "Back"
+mods = "Alt"
+
+# tmux tab 管理（对齐 iTerm2 的 Cmd+T / Cmd+W / Cmd+[ / Cmd+]）
+[[keyboard.bindings]]
+chars = "\u001cc"
+key = "T"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c&"
+key = "W"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001cp"
+key = "LBracket"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001cn"
+key = "RBracket"
+mods = "Command|Shift"
+
+# Cmd+1~9 切换 tab
+[[keyboard.bindings]]
+chars = "\u001c1"
+key = "Key1"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c2"
+key = "Key2"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c3"
+key = "Key3"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c4"
+key = "Key4"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c5"
+key = "Key5"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c6"
+key = "Key6"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c7"
+key = "Key7"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c8"
+key = "Key8"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001c9"
+key = "Key9"
+mods = "Command"
+
+# Backspace 确保正常工作
+[[keyboard.bindings]]
+action = "ReceiveChar"
+key = "Back"

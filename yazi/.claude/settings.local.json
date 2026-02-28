@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(yazi:*)",
+      "Bash(brew list:*)",
+      "Bash(brew info:*)",
+      "Bash(curl:*)",
+      "Bash(brew upgrade:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:yazi-rs.github.io)",
+      "Bash(cat:*)",
+      "Bash(git reset:*)",
+      "WebSearch",
+      "Bash(brew install:*)",
+      "Bash(test:*)",
+      "Bash(python3:*)",
+      "Bash(git add:*)",
+      "Bash(chmod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

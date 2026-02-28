@@ -1,0 +1,348 @@
+# Schema validation — paste URL into a TOML linter (e.g. https://taplo.tamasfe.dev/)
+# Issues: https://github.com/yazi-rs/schemas
+"$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
+
+# ---------------------------------------------------------------------------
+# Manager — file-list layout & sorting
+# ---------------------------------------------------------------------------
+[mgr]
+ratio          = [ 1, 4, 3 ]          # left : center : right panel width
+sort_by        = "btime"              # none | mtime | btime | extension | alphabetical | natural | size | random
+sort_sensitive = false                # case-sensitive sorting
+sort_reverse   = true                 # reverse sort order
+sort_dir_first = false                # directories listed first
+sort_translit  = false                # transliterate names for sorting (useful for CJK)
+linemode       = "none"               # none | size | btime | mtime | permissions | owner
+show_hidden    = false                # show dotfiles / hidden files
+show_symlink   = true                 # show symlink target in the file list
+scrolloff      = 5                    # lines kept visible above / below cursor
+mouse_events   = [ "click", "scroll" ]
+title_format   = "Yazi: {cwd}"        # terminal title; placeholders: {cwd}
+
+# ---------------------------------------------------------------------------
+# Preview — right-panel file previewing
+# ---------------------------------------------------------------------------
+[preview]
+wrap           = "no"                 # word-wrap in code preview (yes | no)
+tab_size       = 2                    # tab → N spaces in code preview
+max_width      = 600                  # max image preview width  (px)
+max_height     = 900                  # max image preview height (px)
+cache_dir      = ""                   # custom cache dir; empty = default
+image_delay    = 30                   # ms to wait before sending image data
+image_filter   = "triangle"           # nearest | triangle | catmull-rom | lanczos3
+image_quality  = 75                   # pre-cache JPEG quality (50-90)
+ueberzug_scale  = 1                   # Überzug++ image scale factor
+ueberzug_offset = [ 0, 0, 0, 0 ]     # [top, right, bottom, left] offset
+
+# ---------------------------------------------------------------------------
+# Openers — how to open / edit / reveal / extract / play files
+# ---------------------------------------------------------------------------
+[opener]
+edit = [
+	{ run = '${EDITOR:-vi} "$@"', desc = "$EDITOR", block = true, for = "unix" },
+	{ run = 'code %*',           desc = "code",           orphan = true, for = "windows" },
+	{ run = 'code -w %*',        desc = "code (block)",   block = true,  for = "windows" },
+]
+
+# macOS 应用打开器
+sublime = [
+	{ run = 'open -a "Sublime Text" "$@"', orphan = true, desc = "Sublime Text", for = "macos" },
+]
+vscode = [
+	{ run = 'open -a "Visual Studio Code" "$@"', orphan = true, desc = "VS Code", for = "macos" },
+]
+numbers = [
+	{ run = 'open -a Numbers "$@"', orphan = true, desc = "Numbers", for = "macos" },
+]
+excel = [
+	{ run = 'open -a "Microsoft Excel" "$@"', orphan = true, desc = "Excel", for = "macos" },
+]
+preview = [
+	{ run = 'open -a Preview "$@"', orphan = true, desc = "Preview", for = "macos" },
+]
+vlc = [
+	{ run = 'open -a VLC "$@"', orphan = true, desc = "VLC", for = "macos" },
+]
+
+# Markdown 专用查看器/编辑器
+typora = [
+	{ run = 'open -a Typora "$@"', orphan = true, desc = "Typora", for = "macos" },
+]
+marked = [
+	{ run = 'open -a "Marked 2" "$@"', orphan = true, desc = "Marked 2", for = "macos" },
+]
+macdown = [
+	{ run = 'open -a MacDown "$@"', orphan = true, desc = "MacDown", for = "macos" },
+]
+# Markdown 终端查看器 (需要安装 glow: brew install glow)
+glow = [
+	{ run = 'glow -p "$@"', block = true, desc = "Glow (终端预览)", for = "unix" },
+]
+# Markdown 转 HTML 在浏览器中查看
+md-browser = [
+	{ run = '''marked "$1" | open -f -a "Google Chrome"''', orphan = true, desc = "浏览器预览", for = "macos" },
+]
+# 使用 QuickLook 预览 (macOS 内置，需要安装 QLMarkdown 插件)
+quicklook = [
+	{ run = 'qlmanage -p "$@" &>/dev/null', orphan = true, desc = "QuickLook 预览", for = "macos" },
+]
+
+open = [
+	{ run = 'xdg-open "$1"',                desc = "Open", for = "linux" },
+	{ run = 'open "$@"',                    desc = "Open", for = "macos" },
+	{ run = 'start "" "%1"', orphan = true, desc = "Open", for = "windows" },
+]
+reveal = [
+	{ run = 'xdg-open "$(dirname "$1")"',           desc = "Reveal",        for = "linux" },
+	{ run = 'open -R "$1"',                         desc = "Reveal",        for = "macos" },
+	{ run = 'explorer /select,"%1"', orphan = true, desc = "Reveal",        for = "windows" },
+	{ run = '''exiftool "$1"; echo "Press enter to exit"; read _''', block = true, desc = "Show EXIF", for = "unix" },
+]
+extract = [
+	{ run = 'ouch d -y "$@"', desc = "Extract here (ouch)", for = "unix" },
+	{ run = 'ouch d -y %*',   desc = "Extract here (ouch)", for = "windows" },
+]
+play = [
+	{ run = 'mpv --force-window "$@"', orphan = true, desc = "Play",            for = "unix" },
+	{ run = 'mpv --force-window %*',   orphan = true, desc = "Play",            for = "windows" },
+	{ run = '''mediainfo "$1"; echo "Press enter to exit"; read _''', block = true, desc = "Show media info", for = "unix" },
+]
+
+# ---------------------------------------------------------------------------
+# Open rules — map file types to opener groups
+# ---------------------------------------------------------------------------
+[open]
+rules = [
+	# Directories
+	{ url = "*/", use = [ "edit", "open", "reveal" ] },
+
+	# Markdown 文件 — 专门的查看/编辑选项
+	{ mime = "text/markdown", use = [ "edit", "glow", "typora", "marked", "macdown", "quicklook", "sublime", "vscode", "reveal" ] },
+	{ url = "*.md", use = [ "edit", "glow", "typora", "marked", "macdown", "quicklook", "sublime", "vscode", "reveal" ] },
+
+	# Plain text — 添加 Sublime Text 和 VS Code 选项
+	{ mime = "text/*", use = [ "edit", "sublime", "vscode", "reveal" ] },
+
+	# Images — 添加 Preview 选项
+	{ mime = "image/*", use = [ "open", "preview", "reveal" ] },
+
+	# Audio / Video — 添加 VLC 选项
+	{ mime = "{audio,video}/*", use = [ "play", "vlc", "reveal" ] },
+
+	# Excel / Numbers 文件
+	{ mime = "application/vnd.ms-excel", use = [ "numbers", "excel", "open", "reveal" ] },
+	{ mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	  use = [ "numbers", "excel", "open", "reveal" ] },
+	{ url = "*.xlsx", use = [ "numbers", "excel", "open", "reveal" ] },
+	{ url = "*.xls",  use = [ "numbers", "excel", "open", "reveal" ] },
+
+	# PDF — 添加 Preview 选项
+	{ mime = "application/pdf", use = [ "open", "preview", "reveal" ] },
+
+	# Archives
+	{ mime = "application/{,g}zip",                              use = [ "extract", "reveal" ] },
+	{ mime = "application/x-{tar,bzip*,7z-compressed,xz,rar}",  use = [ "extract", "reveal" ] },
+
+	# Code / data — JSON, JS, empty files
+	{ mime = "application/{json,x-ndjson}", use = [ "edit", "sublime", "vscode", "reveal" ] },
+	{ mime = "*/javascript",                use = [ "edit", "sublime", "vscode", "reveal" ] },
+	{ mime = "inode/x-empty",               use = [ "edit", "reveal" ] },
+
+	# Fallback
+	{ url = "*", use = [ "open", "reveal" ] },
+]
+
+# ---------------------------------------------------------------------------
+# Tasks — background worker pool tuning
+# ---------------------------------------------------------------------------
+[tasks]
+micro_workers    = 10
+macro_workers    = 25
+bizarre_retry    = 5
+image_alloc      = 1073741824          # 1 GB  — raised for mediainfo large-file previews
+image_bound      = [ 0, 0 ]           # [width, height] hard cap; 0 = unlimited
+suppress_preload = true               # hide preload tasks from the task list
+
+# ---------------------------------------------------------------------------
+# Plugins — fetchers / preloaders / previewers
+# ---------------------------------------------------------------------------
+# Plugin priority order (prepend = highest priority, checked first):
+#   git fetcher → mime fetchers → mediainfo/office/duckdb/ouch previewers
+#   → built-in previewers → piper fallback
+# ---------------------------------------------------------------------------
+[plugin]
+
+# ── Fetchers ─────────────────────────────────────────────────────────────
+# git.yazi: tag every file/dir with git status (must come before mime)
+# mime.*  : standard MIME-type detection
+fetchers = [
+	{ id = "git",        url = "*",  run = "git" },
+	{ id = "git",        url = "*/", run = "git" },
+	{ id = "mime.local", url = "*",  run = "mime.local", if = "!mime", prio = "high" },
+	{ id = "mime.dir",   url = "*/", run = "mime.dir",   prio = "high" },
+]
+
+# ── Preloaders ───────────────────────────────────────────────────────────
+# mediainfo.yazi handles audio/video/image thumbnails — replaces the
+# built-in image/video/magick preloaders for those MIME types.
+# office.yazi pre-renders Office documents to images.
+preloaders = [
+	# mediainfo — audio, video, images (replaces built-in image/video/magick)
+	{ mime = "{audio,video,image}/*",           run = "mediainfo" },
+	{ mime = "application/subrip",              run = "mediainfo" },
+	{ mime = "application/postscript",          run = "mediainfo" },
+	# office — Office Open XML + ODF
+	{ mime = "application/openxmlformats-officedocument.*", run = "office" },
+	{ mime = "application/oasis.opendocument.*",            run = "office" },
+	{ mime = "application/ms-*",                            run = "office" },
+	{ mime = "application/msword",                          run = "office" },
+	{ url  = "*.docx",                                     run = "office" },
+	# PDF
+	{ mime = "application/pdf", run = "pdf" },
+	# Fonts
+	{ mime = "font/*",                       run = "font" },
+	{ mime = "application/vnd.ms-opentype",  run = "font" },
+]
+
+# ── Previewers ───────────────────────────────────────────────────────────
+previewers = [
+	# ── Directories ──────────────────────────────────────────────────────
+	{ url = "*/", run = "folder", sync = true },
+
+	# ── mediainfo — audio / video / images (replaces built-in) ──────────
+	{ mime = "{audio,video,image}/*",    run = "mediainfo" },
+	{ mime = "application/subrip",       run = "mediainfo" },
+	{ mime = "application/postscript",   run = "mediainfo" },
+
+	# ── exifaudio — audio metadata with cover art ───────────────────────
+	# (fallback: mediainfo above already handles most audio; exifaudio
+	#  is useful when exiftool cover extraction is preferred)
+
+	# ── duckdb — tabular data files ──────────────────────────────────────
+	{ url = "*.csv",     run = "duckdb" },
+	{ url = "*.tsv",     run = "duckdb" },
+	{ url = "*.parquet", run = "duckdb" },
+	{ url = "*.db",      run = "duckdb" },
+	{ url = "*.duckdb",  run = "duckdb" },
+	{ url = "*.xlsx",    run = "duckdb" },
+
+	# ── office — Office Open XML + ODF documents ────────────────────────
+	{ mime = "application/openxmlformats-officedocument.*", run = "office" },
+	{ mime = "application/oasis.opendocument.*",            run = "office" },
+	{ mime = "application/ms-*",                            run = "office" },
+	{ mime = "application/msword",                          run = "office" },
+	{ url  = "*.docx",                                     run = "office" },
+
+	# ── ouch — archive preview (replaces built-in archive) ──────────────
+	{ mime = "application/{*zip,tar,bzip2,7z*,rar,xz,zstd,java-archive}", run = "ouch" },
+
+	# ── Code / text ──────────────────────────────────────────────────────
+	{ mime = "text/*",                                    run = "code" },
+	{ mime = "*/{xml,javascript,x-wine-extension-ini}",  run = "code" },
+
+	# ── Structured data ──────────────────────────────────────────────────
+	{ mime = "application/{json,x-ndjson}", run = "json" },
+
+	# ── PDF ───────────────────────────────────────────────────────────────
+	{ mime = "application/pdf", run = "pdf" },
+
+	# ── Fonts ─────────────────────────────────────────────────────────────
+	{ mime = "font/*",                       run = "font" },
+	{ mime = "application/vnd.ms-opentype",  run = "font" },
+
+	# ── Empty files ───────────────────────────────────────────────────────
+	{ mime = "inode/x-empty", run = "empty" },
+
+	# ── Fallback — piper with hexyl for binary / unknown files ───────────
+	{ url = "*", run = 'piper -- hexyl --border=none --terminal-width=$w "$1"' },
+]
+
+# ---------------------------------------------------------------------------
+# Input dialogs — title, position, and size for each prompt type
+# ---------------------------------------------------------------------------
+[input]
+cursor_blink = false
+
+# cd prompt
+cd_title  = "Change directory:"
+cd_origin = "top-center"
+cd_offset = [ 0, 2, 50, 3 ]
+
+# create file / directory
+create_title  = [ "Create:", "Create (confirm):" ]
+create_origin = "top-center"
+create_offset = [ 0, 2, 50, 3 ]
+
+# rename
+rename_title  = "Rename:"
+rename_origin = "hovered"
+rename_offset = [ 0, 1, 50, 3 ]
+
+# filter (live filter on file list)
+filter_title  = "Filter:"
+filter_origin = "top-center"
+filter_offset = [ 0, 2, 50, 3 ]
+
+# find (jump to matching file)
+find_title  = [ "Find next:", "Find previous:" ]
+find_origin = "top-center"
+find_offset = [ 0, 2, 50, 3 ]
+
+# search (fd / ripgrep)
+search_title  = "Search via {n}:"
+search_origin = "top-center"
+search_offset = [ 0, 2, 50, 3 ]
+
+# inline shell
+shell_title  = [ "Shell:", "Shell (block):" ]
+shell_origin = "top-center"
+shell_offset = [ 0, 2, 50, 3 ]
+
+# ---------------------------------------------------------------------------
+# Confirmation dialogs
+# ---------------------------------------------------------------------------
+[confirm]
+# Trash selected files
+trash_title  = "Trash {n} selected file{s}?"
+trash_origin = "center"
+trash_offset = [ 0, 0, 70, 20 ]
+
+# Permanent deletion
+delete_title  = "Permanently delete {n} selected file{s}?"
+delete_origin = "center"
+delete_offset = [ 0, 0, 70, 20 ]
+
+# Overwrite on paste — "body" replaces the old "content" key (v25.12.29+)
+overwrite_title  = "Overwrite file?"
+overwrite_body   = "Will overwrite the following file:"
+overwrite_origin = "center"
+overwrite_offset = [ 0, 0, 50, 15 ]
+
+# Quit while tasks are running
+quit_title  = "Quit?"
+quit_body   = "The following task is still running, are you sure you want to quit?"
+quit_origin = "center"
+quit_offset = [ 0, 0, 50, 15 ]
+
+# ---------------------------------------------------------------------------
+# Pick dialog — "Open with" menu
+# ---------------------------------------------------------------------------
+[pick]
+open_title  = "Open with:"
+open_origin = "hovered"
+open_offset = [ 0, 1, 50, 7 ]
+
+# ---------------------------------------------------------------------------
+# Which — keystroke hint overlay
+# ---------------------------------------------------------------------------
+[which]
+sort_by        = "none"               # none | key | desc
+sort_sensitive = false
+sort_reverse   = false
+sort_translit  = false
+
+# ---------------------------------------------------------------------------
+# Logging — enable for troubleshooting; disable in production
+# ---------------------------------------------------------------------------
+[log]
+enabled = false
