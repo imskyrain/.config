@@ -11,13 +11,45 @@
 
 ## 安装
 
+### 方式 1: 直接克隆到 ~/.config
+
 ```bash
+# 备份现有配置（如果有）
+mv ~/.config ~/.config.backup
+
 # 克隆仓库
 git clone git@github.com:imskyrain/.config.git ~/.config
+```
 
-# 或者克隆到指定位置并创建符号链接
-git clone git@github.com:imskyrain/.config.git ~/dotfiles/.config
-ln -s ~/dotfiles/.config ~/.config
+### 方式 2: 克隆到自定义位置并创建软链接
+
+```bash
+# 克隆到指定位置
+git clone git@github.com:imskyrain/.config.git ~/Tools/git_core/github/.config
+
+# 创建软链接到 ~/.config
+ln -s ~/Tools/git_core/github/.config/nvim ~/.config/nvim
+ln -s ~/Tools/git_core/github/.config/yazi ~/.config/yazi
+ln -s ~/Tools/git_core/github/.config/alacritty ~/.config/alacritty
+ln -s ~/Tools/git_core/github/.config/tmux/.tmux.conf ~/.config/.tmux.conf
+
+# tmux 配置需要额外软链接到家目录
+ln -s ~/Tools/git_core/github/.config/tmux/.tmux.conf ~/.tmux.conf
+ln -s ~/Tools/git_core/github/.config/tmux/.tmux.conf.local ~/.tmux.conf.local
+```
+
+### 当前使用的软链接配置
+
+```bash
+# ~/.config 目录下
+~/.config/nvim -> ~/Tools/git_core/github/.config/nvim
+~/.config/yazi -> ~/Tools/git_core/github/.config/yazi
+~/.config/alacritty -> ~/Tools/git_core/github/.config/alacritty
+~/.config/.tmux.conf -> ~/Tools/git_core/github/.config/tmux/.tmux.conf
+
+# 家目录下（tmux 配置）
+~/.tmux.conf -> ~/Tools/git_core/github/.config/tmux/.tmux.conf
+~/.tmux.conf.local -> ~/Tools/git_core/github/.config/tmux/.tmux.conf.local
 ```
 
 ## 原仓库地址
