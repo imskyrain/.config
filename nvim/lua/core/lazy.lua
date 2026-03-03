@@ -38,6 +38,8 @@ require("lazy").setup({
 		{ import = "plugins.navigation" },
 		{ import = "plugins.ui" },
 		{ import = "plugins.utils" },
+		-- { import = "plugins.dap" },  -- 已禁用：DAP调试插件（需要时取消注释）
+		-- { import = "plugins.ai" },   -- AI插件默认禁用（avante需要API key）
 	},
 	checker = { enable = not lite_mode },
 })

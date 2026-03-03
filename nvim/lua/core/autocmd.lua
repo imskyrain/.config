@@ -60,3 +60,37 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost" }, {
 		end
 	end,
 })
+
+-- 退出前检查未命名文件
+vim.api.nvim_create_autocmd("QuitPre", {
+	desc = "退出前检查未命名文件",
+	group = vim.api.nvim_create_augroup("check-unnamed-on-quit", { clear = true }),
+	callback = function()
+		local buf = vim.api.nvim_get_current_buf()
+		local bufname = vim.api.nvim_buf_get_name(buf)
+		local modified = vim.api.nvim_buf_get_option(buf, "modified")
+		local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
+
+		-- 检查是否是未命名的普通文件且有修改
+		if bufname == "" and modified and buftype == "" then
+			-- 检查是否有内容（不是空文件）
+			local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+			local has_content = false
+			for _, line in ipairs(lines) do
+				if line ~= "" then
+					has_content = true
+					break
+				end
+			end
+
+			if has_content then
+				-- 阻止退出，提示用户
+				vim.schedule(function()
+					vim.notify("未命名文件有未保存的内容，请先保存（Ctrl+S）或使用 :q! 强制退出", vim.log.levels.WARN)
+				end)
+				-- 返回 true 会阻止退出
+				return true
+			end
+		end
+	end,
+})

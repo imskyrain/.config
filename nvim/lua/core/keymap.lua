@@ -6,7 +6,21 @@ map("n", "<leader>T", "<cmd>ThemeSwitch theme=dropdown<cr>", { silent = true, de
 map("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 map("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 
-map({ "i", "n", "v", "s" }, "<C-s>", "<Cmd>w<CR>", { silent = true, desc = "保存文件" })
+-- 智能保存：未命名文件提示输入文件名
+map({ "i", "n", "v", "s" }, "<C-s>", function()
+	local bufname = vim.api.nvim_buf_get_name(0)
+	if bufname == "" then
+		-- 未命名文件，提示输入文件名
+		vim.ui.input({ prompt = "保存为: " }, function(filename)
+			if filename and filename ~= "" then
+				vim.cmd("write " .. filename)
+			end
+		end)
+	else
+		-- 已命名文件，直接保存
+		vim.cmd("write")
+	end
+end, { desc = "保存文件" })
 map({ "i", "n" }, "<C-a>", "<Cmd>normal! ggVG<CR>", { silent = true, desc = "全选操作" })
 
 map("n", "<leader>qq", "<cmd>wqa<cr>", { desc = "退出编辑器" })
@@ -32,3 +46,48 @@ map("n", "<leader><tab>d", "<cmd>tabclose<CR>", { desc = "关闭当前标签页"
 map("n", "<leader><tab>o", "<cmd>tabonly<CR>", { desc = "关闭其他标签页" })
 map("n", "<leader><tab>l", "<cmd>tabnext<CR>", { desc = "切换到下一个标签页" })
 map("n", "<leader><tab>h", "<cmd>tabprevious<CR>", { desc = "切换到上一个标签页" })
+
+-- Sublime Text 风格快捷键
+-- 智能新建文件：立即提示输入文件名
+map("n", "<C-n>", function()
+	vim.ui.input({ prompt = "新建文件: " }, function(filename)
+		if filename and filename ~= "" then
+			vim.cmd("edit " .. filename)
+		end
+	end)
+end, { desc = "新建文件" })
+
+-- 智能关闭：未保存的文件提示保存
+map("n", "<C-w>", function()
+	local buf = vim.api.nvim_get_current_buf()
+	local modified = vim.api.nvim_buf_get_option(buf, "modified")
+	local bufname = vim.api.nvim_buf_get_name(buf)
+
+	if modified then
+		if bufname == "" then
+			-- 未命名且有修改，提示是否保存
+			vim.ui.select({ "保存", "不保存", "取消" }, {
+				prompt = "未命名文件有未保存的修改:",
+			}, function(choice)
+				if choice == "保存" then
+					vim.ui.input({ prompt = "保存为: " }, function(filename)
+						if filename and filename ~= "" then
+							vim.cmd("write " .. filename)
+							vim.cmd("bdelete")
+						end
+					end)
+				elseif choice == "不保存" then
+					vim.cmd("bdelete!")
+				end
+			end)
+		else
+			-- 有文件名但未保存，使用默认行为（Vim 会提示）
+			vim.cmd("bdelete")
+		end
+	else
+		vim.cmd("bdelete")
+	end
+end, { desc = "关闭当前缓冲区" })
+
+map("n", "<C-Tab>", "<cmd>bnext<CR>", { desc = "下一个缓冲区" })
+map("n", "<C-S-Tab>", "<cmd>bprevious<CR>", { desc = "上一个缓冲区" })

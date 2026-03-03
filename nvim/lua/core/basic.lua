@@ -36,6 +36,19 @@ vim.opt.sidescrolloff = 5
 -- 功能
 vim.opt.undofile = true -- 启用持久撤销
 vim.opt.clipboard = "unnamedplus" -- 共享系统剪切板
+vim.opt.mouse = "a" -- 启用鼠标支持
+vim.opt.swapfile = false -- 禁用交换文件
+vim.opt.backup = false -- 禁用备份文件
+vim.opt.writebackup = false -- 禁用写入前备份
+
+-- Sublime Text 风格设置
+vim.opt.hidden = true -- 允许在未保存的缓冲区之间切换
+vim.opt.confirm = true -- 退出时提示保存未保存的文件
+vim.opt.autoread = true -- 文件在外部修改时自动重新读取
+vim.opt.updatetime = 300 -- 更快的 CursorHold 事件触发
+
+-- 更平滑的滚动
+vim.opt.smoothscroll = true
 
 -- 代码折叠 (使用uof.lua的那一套配置)
 -- vim.opt.foldmethod = "expr"
