@@ -85,3 +85,63 @@ end, { desc = "关闭当前缓冲区" })
 
 map("n", "<C-Tab>", "<cmd>bnext<CR>", { desc = "下一个缓冲区" })
 map("n", "<C-S-Tab>", "<cmd>bprevious<CR>", { desc = "上一个缓冲区" })
+
+-- 切换换行显示
+map("n", "<leader>uw", function()
+	vim.wo.wrap = not vim.wo.wrap
+	if vim.wo.wrap then
+		vim.wo.linebreak = true -- 启用智能换行（不在单词中间换行）
+		vim.notify("已启用自动换行", vim.log.levels.INFO)
+	else
+		vim.notify("已禁用自动换行", vim.log.levels.INFO)
+	end
+end, { desc = "切换自动换行" })
+
+-- 更好的粘贴支持 - 从系统剪贴板粘贴
+map("n", "<leader>p", '"+p', { desc = "从系统剪贴板粘贴(后)" })
+map("n", "<leader>P", '"+P', { desc = "从系统剪贴板粘贴(前)" })
+map("v", "<leader>p", '"+p', { desc = "从系统剪贴板粘贴" })
+-- 插入模式下使用 Ctrl+V 粘贴（不会有转义字符）
+map("i", "<C-v>", "<C-r>+", { desc = "粘贴系统剪贴板" })
+
+-- 清理当前行的转义序列
+map("n", "<leader>uc", function()
+	local line = vim.api.nvim_get_current_line()
+	-- 移除常见的转义序列
+	local cleaned = line:gsub("%[%d+;%d+;%d+~", "\n") -- 替换 [27;5;106~ 为换行
+	cleaned = cleaned:gsub("%[%d+~", "") -- 移除其他转义序列
+	cleaned = cleaned:gsub("", "") -- 移除 ESC 字符
+	vim.api.nvim_set_current_line(cleaned)
+	vim.notify("已清理转义序列", vim.log.levels.INFO)
+end, { desc = "清理当前行转义序列" })
+
+-- 清理选中文本的转义序列
+map("v", "<leader>uc", function()
+	-- 获取选中的范围
+	local start_pos = vim.fn.getpos("'<")
+	local end_pos = vim.fn.getpos("'>")
+	local start_line = start_pos[2]
+	local end_line = end_pos[2]
+
+	-- 获取并清理所有选中的行
+	local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+	for i, line in ipairs(lines) do
+		-- 替换转义序列为实际内容
+		lines[i] = line:gsub("%[27;5;106~", "\n") -- Ctrl+j -> 换行
+		lines[i] = lines[i]:gsub("%[%d+;%d+;%d+~", "") -- 其他序列
+		lines[i] = lines[i]:gsub("%[%d+~", "")
+		lines[i] = lines[i]:gsub("", "")
+	end
+
+	-- 分割包含换行符的行
+	local new_lines = {}
+	for _, line in ipairs(lines) do
+		for subline in line:gmatch("[^\n]+") do
+			table.insert(new_lines, subline)
+		end
+	end
+
+	-- 替换原来的行
+	vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, new_lines)
+	vim.notify("已清理并分割文本", vim.log.levels.INFO)
+end, { desc = "清理选中文本转义序列" })

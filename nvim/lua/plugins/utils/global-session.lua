@@ -254,16 +254,44 @@ return {
 			end
 		end
 
-		-- VimEnter: 自动恢复会话（仅在无参数启动时）
+		-- VimEnter: 自动恢复会话
 		vim.api.nvim_create_autocmd("VimEnter", {
 			group = vim.api.nvim_create_augroup("global_session_restore", { clear = true }),
 			callback = function()
-				-- 仅在无参数启动且没有从 stdin 读取时恢复
-				if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
-					-- 延迟加载，等待其他插件初始化
-					vim.defer_fn(function()
-						load_global_session()
-					end, 100)
+				-- 检查是否有会话可以恢复
+				local has_session = vim.fn.filereadable(global_session) == 1
+				local has_unnamed = vim.fn.filereadable(unnamed_dir .. "list.vim") == 1
+
+				-- 如果有会话或未命名文件，且不是从 stdin 读取
+				if (has_session or has_unnamed) and not vim.g.started_with_stdin then
+					-- 只在无参数或单个空 buffer 时恢复
+					local should_restore = false
+
+					if vim.fn.argc() == 0 then
+						should_restore = true
+					else
+						-- 检查是否只有一个空 buffer（可能是错误恢复后的情况）
+						local bufs = vim.api.nvim_list_bufs()
+						local loaded_bufs = 0
+						for _, buf in ipairs(bufs) do
+							if vim.api.nvim_buf_is_loaded(buf) then
+								loaded_bufs = loaded_bufs + 1
+							end
+						end
+						if loaded_bufs <= 1 then
+							local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+							if #lines == 1 and lines[1] == "" then
+								should_restore = true
+							end
+						end
+					end
+
+					if should_restore then
+						-- 延迟加载，等待其他插件初始化
+						vim.defer_fn(function()
+							load_global_session()
+						end, 100)
+					end
 				end
 			end,
 			nested = true,

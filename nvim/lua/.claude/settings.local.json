@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(nvim --headless -c \"lua print(''测试配置加载...'')\" -c \"lua require(''plugins.utils.global-session'')\" -c \"q\")"
+      "Bash(nvim --headless -c \"lua print(''测试配置加载...'')\" -c \"lua require(''plugins.utils.global-session'')\" -c \"q\")",
+      "Bash(nvim:*)",
+      "Bash(echo:*)",
+      "Bash(tmux show-options:*)",
+      "Bash(tmux show-option:*)"
     ],
     "deny": [],
     "ask": []

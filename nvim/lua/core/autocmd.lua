@@ -1,3 +1,39 @@
+-- 修复终端键码问题（特别是 tmux）
+vim.api.nvim_create_autocmd({ "VimEnter", "VimResume" }, {
+	desc = "修复终端键码和粘贴",
+	group = vim.api.nvim_create_augroup("fix-terminal", { clear = true }),
+	callback = function()
+		-- 确保不在 paste 模式
+		vim.opt.paste = false
+
+		if vim.env.TMUX then
+			-- 在 tmux 中的特殊处理
+			-- 禁用 modifyOtherKeys
+			io.stdout:write("\027Ptmux;\027\027[>4;0m\027\\")
+			io.stdout:flush()
+		else
+			-- 非 tmux 环境
+			io.stdout:write("\027[>4;0m")
+			io.stdout:flush()
+		end
+	end,
+})
+
+-- 退出时恢复终端设置
+vim.api.nvim_create_autocmd({ "VimLeavePre", "VimSuspend" }, {
+	desc = "恢复终端设置",
+	group = vim.api.nvim_create_augroup("restore-terminal", { clear = true }),
+	callback = function()
+		if vim.env.TMUX then
+			-- tmux 环境恢复
+			io.stdout:write("\027Ptmux;\027\027[>4;1m\027\\")
+		else
+			io.stdout:write("\027[>4;1m")
+		end
+		io.stdout:flush()
+	end,
+})
+
 -- 自定义加载事件，最适合bufferline与lualine
 vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
 	desc = "自定义事件LazyFile",
@@ -35,12 +71,46 @@ vim.api.nvim_create_autocmd("FileType", {
 -- 部分文档文件开启自动软换行
 vim.api.nvim_create_autocmd("FileType", {
 	desc = "部分文档文件开启自动软换行",
-	pattern = { "markdown", "text" },
+	pattern = {
+		"markdown",
+		"text",
+		"txt",
+		"log",
+		"gitcommit",
+		"help",
+		"man",
+	},
 	callback = function()
 		vim.opt_local.wrap = true
-		vim.opt_local.linebreak = true
+		vim.opt_local.linebreak = true -- 智能换行，不在单词中间断开
 		vim.opt_local.colorcolumn = {}
 		vim.opt_local.scrolloff = 8
+	end,
+})
+
+-- 未命名缓冲区粘贴大量文本时自动启用换行
+vim.api.nvim_create_autocmd("TextChanged", {
+	desc = "未命名缓冲区有长行时自动启用换行",
+	pattern = "*",
+	once = false,
+	callback = function()
+		local buf = vim.api.nvim_get_current_buf()
+		local bufname = vim.api.nvim_buf_get_name(buf)
+		local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
+
+		-- 只对未命名的普通缓冲区处理
+		if bufname == "" and buftype == "" and not vim.wo.wrap then
+			-- 检查是否有超长行
+			local lines = vim.api.nvim_buf_get_lines(buf, 0, 100, false)
+			for _, line in ipairs(lines) do
+				if #line > 120 then
+					vim.wo.wrap = true
+					vim.wo.linebreak = true
+					vim.notify("检测到长行，已自动启用换行（<leader>uw 切换）", vim.log.levels.INFO)
+					return
+				end
+			end
+		end
 	end,
 })
 
