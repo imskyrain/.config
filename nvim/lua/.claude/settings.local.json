@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nvim --headless -c \"lua print(''测试配置加载...'')\" -c \"lua require(''plugins.utils.global-session'')\" -c \"q\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

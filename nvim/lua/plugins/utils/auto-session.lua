@@ -1,6 +1,7 @@
 -- Auto Session - 自动会话管理（Sublime Text 风格）
 return {
 	"rmagatti/auto-session",
+	enabled = false, -- 禁用，改用全局 session
 	lazy = false,
 	opts = {
 		log_level = "error",
