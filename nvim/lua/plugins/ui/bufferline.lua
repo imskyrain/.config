@@ -1,6 +1,6 @@
 return {
 	"akinsho/bufferline.nvim",
-	event = "User LazyFile",
+	lazy = false, -- 立即加载，确保顶部 tab 始终显示
 	-- 插件依赖
 	dependencies = { "nvim-tree/nvim-web-devicons" }, -- 用于显示文件图标，强烈推荐安装
 	opts = {

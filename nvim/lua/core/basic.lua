@@ -3,7 +3,8 @@ vim.opt.number = true -- 显示行号
 vim.opt.relativenumber = true -- 显示相对行号
 vim.opt.signcolumn = "yes" -- 永远显示 sign column（诊断标记）
 vim.opt.winborder = "rounded" -- 边框样式
-vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
+-- Session 选项已移至 persistence.lua 中统一管理
+-- vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds", "blank" }
 --换行统一
 -- 设置文件默认保存格式为 Unix (LF)
 vim.opt.fileformat = "unix"
