@@ -5,7 +5,8 @@
       "Bash(nvim:*)",
       "Bash(echo:*)",
       "Bash(tmux show-options:*)",
-      "Bash(tmux show-option:*)"
+      "Bash(tmux show-option:*)",
+      "Bash(timeout 3 nvim:*)"
     ],
     "deny": [],
     "ask": []

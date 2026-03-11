@@ -6,14 +6,61 @@ map("n", "<leader>T", "<cmd>ThemeSwitch theme=dropdown<cr>", { silent = true, de
 map("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 map("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 
--- 智能保存：未命名文件提示输入文件名
+-- 智能保存：未命名文件使用首行或提示输入文件名 (Sublime Text 风格)
 map({ "i", "n", "v", "s" }, "<C-s>", function()
 	local bufname = vim.api.nvim_buf_get_name(0)
 	if bufname == "" then
-		-- 未命名文件，提示输入文件名
-		vim.ui.input({ prompt = "保存为: " }, function(filename)
+		-- 未命名文件，尝试使用首行作为文件名
+		local lines = vim.api.nvim_buf_get_lines(0, 0, 1, false)
+		local default_name = nil
+
+		if #lines > 0 and lines[1] ~= "" then
+			local first_line = lines[1]:match("^%s*(.-)%s*$")
+			if first_line ~= "" then
+				default_name = first_line:sub(1, 100)
+				default_name = default_name:gsub('[<>:"/\\|?*]', "_")
+				default_name = default_name:gsub("_+", "_"):gsub("^_+", ""):gsub("_+$", "")
+
+				-- 根据文件类型添加扩展名
+				if not default_name:match("%.%w+$") then
+					local ft = vim.bo.filetype
+					if ft == "python" then
+						default_name = default_name .. ".py"
+					elseif ft == "javascript" or ft == "javascriptreact" then
+						default_name = default_name .. ".js"
+					elseif ft == "typescript" or ft == "typescriptreact" then
+						default_name = default_name .. ".ts"
+					elseif ft == "lua" then
+						default_name = default_name .. ".lua"
+					elseif ft == "markdown" then
+						default_name = default_name .. ".md"
+					elseif ft ~= "" then
+						default_name = default_name .. ".txt"
+					end
+				end
+			end
+		end
+
+		vim.ui.input({
+			prompt = "保存为: ",
+			default = default_name or "",
+		}, function(filename)
 			if filename and filename ~= "" then
-				vim.cmd("write " .. filename)
+				local success, err = pcall(function()
+					vim.cmd("write " .. vim.fn.fnameescape(filename))
+				end)
+				if success and default_name then
+					-- 如果使用了首行作为文件名，保存后删除首行
+					vim.schedule(function()
+						local current_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+						if #current_lines > 1 then
+							vim.api.nvim_buf_set_lines(0, 0, 1, false, {})
+							vim.cmd("silent! write")
+						end
+					end)
+				elseif not success then
+					vim.notify("保存失败: " .. tostring(err), vim.log.levels.ERROR)
+				end
 			end
 		end)
 	else
@@ -85,6 +132,22 @@ end, { desc = "关闭当前缓冲区" })
 
 map("n", "<C-Tab>", "<cmd>bnext<CR>", { desc = "下一个缓冲区" })
 map("n", "<C-S-Tab>", "<cmd>bprevious<CR>", { desc = "上一个缓冲区" })
+
+-- 增强的关闭缓冲区命令
+map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "关闭当前缓冲区" })
+map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "强制关闭当前缓冲区" })
+map("n", "<leader>ba", ":%bdelete<cr>", { desc = "关闭所有缓冲区" })
+
+-- 在 tmux 中增强 yy 复制到系统剪贴板
+if vim.env.TMUX then
+	-- y 操作后自动复制到系统剪贴板
+	map({ "n", "v" }, "y", '"+y', { desc = "复制到系统剪贴板" })
+	map({ "n", "v" }, "Y", '"+Y', { desc = "复制行到系统剪贴板" })
+	map({ "n", "v" }, "yy", '"+yy', { desc = "复制当前行到系统剪贴板" })
+	-- p 从系统剪贴板粘贴
+	map({ "n", "v" }, "p", '"+p', { desc = "从系统剪贴板粘贴" })
+	map({ "n", "v" }, "P", '"+P', { desc = "从系统剪贴板粘贴(前)" })
+end
 
 -- 切换换行显示
 map("n", "<leader>uw", function()
