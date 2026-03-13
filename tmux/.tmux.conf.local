@@ -411,6 +411,11 @@ set -g mouse on #!important
 # -- mouse behavior improvements -----------------------------------------------
 # 优化鼠标选择体验，避免自动跳转到底部
 
+# emacs 模式（默认模式）的鼠标优化
+unbind -T copy-mode MouseDragEnd1Pane #!important
+bind -T copy-mode MouseDragEnd1Pane send -X copy-selection-no-clear #!important
+
+# vi 模式的鼠标优化
 # 鼠标拖动结束时不自动复制和退出复制模式（保持在当前位置）
 unbind -T copy-mode-vi MouseDragEnd1Pane #!important
 bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-selection-no-clear #!important
@@ -606,3 +611,15 @@ set-environment -g PATH "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # Initialize TPM (keep this line at the very bottom of tmux.conf.local)
 set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins"
 run '~/.tmux/plugins/tpm/tpm'
+
+# -- 快捷键切换 emacs/vi 模式 --------------------------------------------------
+# Ctrl+b M  切换到 vi 模式
+bind M set-window-option mode-keys vi \; display-message "Vi mode enabled"
+
+# Ctrl+b E  切换到 emacs 模式
+bind E set-window-option mode-keys emacs \; display-message "Emacs mode enabled"
+
+# Ctrl+b T  切换模式（自动在 vi 和 emacs 之间切换）
+bind T if-shell -F "#{==:#{mode-keys},vi}" \
+  "set-window-option mode-keys emacs; display-message 'Emacs mode'" \
+  "set-window-option mode-keys vi; display-message 'Vi mode'"
